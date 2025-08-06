@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FriendZone - Login / Signup</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      display: flex;
+      height: 100vh;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+    }
+    .container {
+      background: white;
+      padding: 30px 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      width: 350px;
+      text-align: center;
+    }
+    input {
+      width: 100%;
+      padding: 10px 15px;
+      margin: 10px 0;
+      border: 2px solid #f5576c;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    button {
+      background: #f5576c;
+      border: none;
+      padding: 12px;
+      color: white;
+      font-size: 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 15px;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #f093fb;
+    }
+    #toggleForm {
+      margin-top: 20px;
+      color: #f5576c;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    #error {
+      color: red;
+      margin-top: 10px;
+      min-height: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2 id="formTitle">Login to FriendZone</h2>
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
+    <button id="authBtn">Login</button>
+    <div id="toggleForm">Don't have an account? Signup</div>
+    <div id="error"></div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
+  <script>
+    // ✅ তোমার FriendZone Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBW7bDAwqUGbvVD_4PmwyXZu6h9bV00FhQ",
+      authDomain: "friendzone.firebaseapp.com",
+      projectId: "friendzone",
+      storageBucket: "friendzone.appspot.com",
+      messagingSenderId: "263899744045",
+      appId: "YOUR_APP_ID_HERE" // 👈 এখানটায় তোমার প্রকৃত App ID বসাও
+    };
+
+    // ✅ Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    let isLogin = true;
+    const formTitle = document.getElementById('formTitle');
+    const authBtn = document.getElementById('authBtn');
+    const toggleForm = document.getElementById('toggleForm');
+    const errorDiv = document.getElementById('error');
+
+    toggleForm.addEventListener('click', () => {
+      isLogin = !isLogin;
+      if (isLogin) {
+        formTitle.innerText = "Login to FriendZone";
+        authBtn.innerText = "Login";
+        toggleForm.innerText = "Don't have an account? Signup";
+      } else {
+        formTitle.innerText = "Signup for FriendZone";
+        authBtn.innerText = "Signup";
+        toggleForm.innerText = "Already have an account? Login";
+      }
+      errorDiv.innerText = '';
+    });
+
+    authBtn.addEventListener('click', () => {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      errorDiv.innerText = '';
+
+      if (!email || !password) {
+        errorDiv.innerText = "Please enter email and password.";
+        return;
+      }
+
+      if (isLogin) {
+        auth.signInWithEmailAndPassword(email, password)
+          .then(() => {
+            window.location.href = 'home.html'; // ✅ Login success → home.html
+          })
+          .catch(err => {
+            errorDiv.innerText = err.message;
+          });
+      } else {
+        auth.createUserWithEmailAndPassword(email, password)
+          .then(() => {
+            window.location.href = 'home.html'; // ✅ Signup success → home.html
+          })
+          .catch(err => {
+            errorDiv.innerText = err.message;
+          });
+      }
+    });
+
+    // ✅ Auto redirect if already logged in
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        window.location.href = 'home.html';
+      }
+    });
+  </script>
+</body>
+</html>
